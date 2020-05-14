@@ -8,12 +8,10 @@ import Cart from './components/Cart'
 class App extends React.Component{
 state={products:[],cartitems:[]}
 
-componentWillMount(){
-fetch("http://localhost:8001/products")
-.then(res=>res.json())
-.then(data => this.setState({
-  products:data
-}))
+async componentDidMount() {
+    const response = await axios.get("http://localhost:8000/products");
+    this.setState({ products: response.data });
+  }
 //-----
 //if(localStorage.getItem('cartitems')){
  // this.setState({
@@ -25,22 +23,23 @@ fetch("http://localhost:8001/products")
 }
 
 //-----------آپدیت سبد خرید- یک تابع برگشتی است که در پروداکت صدا زده می شود و اینجا نمایش داده می شود
+//product=محصولی است که می خواهد به سبد خرید اضافه شود ولی قبل از اضافه کردن آی دی آن چک می شود که قبلا وجود نداشته باشد
 handeladdtocart =(product)=>{
 this.setState(state=>{
-  const cartitems =state.cartitems
+  
   let productexist =false
-  cartitems.forEach(item =>{
+  state.cartitems.forEach(item =>{
     if(item.id ===product.id){
       productexist =true
-      item.count++
+      
 
     }
   })
 if (!productexist){
-  cartitems.push({...product,count:1})
+  state.cartitems.push({...product})
 }
-localStorage.setItem('cartitems',JSON.stringify(cartitems))
-return cartitems
+
+return state.cartitems
 })
 
 }
