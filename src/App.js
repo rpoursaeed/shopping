@@ -1,77 +1,65 @@
-import React from 'react'
-import Products from './components/Products'
-import Cart from './components/Cart'
-
-
+import React from "react";
+import Products from "./components/Products";
+import Cart from "./components/Cart";
+import "./style.css";
 
 //------سبد خرید= cartitems
-class App extends React.Component{
-state={products:[],cartitems:[]}
+class App extends React.Component {
+  state = { products: [], cartitems: [] };
 
-async componentDidMount() {
-    const response = await axios.get("http://localhost:8000/products");
-    this.setState({ products: response.data });
+  componentWillMount() {
+    fetch("http://localhost:8000/products")
+      .then((res) => res.json())
+      .then((data) =>
+        this.setState({
+          products: data,
+        })
+      );
   }
-//-----
-//if(localStorage.getItem('cartitems')){
- // this.setState({
- //   cartitems :JSON.parse(localStorage.getItem('cartitems'))
- // })
-//}
 
+  handeladdtocart = (product) => {
+    this.setState((prevState) => {
+      let cartitems = prevState.cartitems;
 
-}
+      let productexist = false;
+      cartitems.forEach((item) => {
+        if (item.id === product.id) {
+          productexist = true;
+          item.count++;
+        }
+      });
+      //سه نقطه یعنی به آن اضافه شود
+      if (!productexist) {
+        cartitems = [...cartitems, { ...product, count: 1 }];
+        //اینجا آبجکت برمی گردانیم
+        //done: [task, ...prevState.done],
+      }
 
-//-----------آپدیت سبد خرید- یک تابع برگشتی است که در پروداکت صدا زده می شود و اینجا نمایش داده می شود
-//product=محصولی است که می خواهد به سبد خرید اضافه شود ولی قبل از اضافه کردن آی دی آن چک می شود که قبلا وجود نداشته باشد
-handeladdtocart =(product)=>{
-this.setState(state=>{
-  
-  let productexist =false
-  state.cartitems.forEach(item =>{
-    if(item.id ===product.id){
-      productexist =true
-      
+      return { cartitems };
+    });
+  };
+  //-------------------
+  handleremove = (item) => {
+    this.setState((state) => {
+      const cartitems = state.cartitems.filter((p) => p.id !== item.id);
+      return { cartitems };
+    });
+  };
 
-    }
-  })
-if (!productexist){
-  state.cartitems.push({...product})
-}
-
-return state.cartitems
-})
-
-}
-//-------------------
-handleremove =(item)=>{
-this.setState (state =>{
-const cartitems = state.cartitems.filter(p=>p.id !== item.id)
-localStorage.setItem('cartitems',cartitems)
-return {cartitems}
-})
-}
-
-
-
-
-
-  render(){
-    return(
-      <div>
-        <Products    products={this.state.products}  handeladdtocart={this.handeladdtocart} />
-        <Cart cartitems={this.state.cartitems} handleremove={this.handleremove} />
-   
-
+  render() {
+    return (
+      <div className="main">
+        <Products
+          products={this.state.products}
+          handeladdtocart={this.handeladdtocart}
+        />
+        <Cart
+          cartitems={this.state.cartitems}
+          handleremove={this.handleremove}
+        />
       </div>
-    )
+    );
   }
 }
-
-
-
-
-
-
 
 export default App;
